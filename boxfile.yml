@@ -1,0 +1,19 @@
+run.config:
+  engine: python
+  extra_packages:
+    - nginx
+
+deploy.config:
+  extra_steps:
+    - python manage.py collectstatic --noinput --clear
+  before_live:
+    web.main:
+      - python manage.py migrate --fake-initial
+
+web.main:
+  start:
+    nginx: nginx -c /app/etc/nginx.conf
+    django: gunicorn -c /app/etc/gunicorn.py loc_v1.wsgi
+
+data.db:
+  image: nanobox/mysql
